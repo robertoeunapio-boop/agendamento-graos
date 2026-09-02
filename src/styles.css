@@ -1,0 +1,112 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+/*
+ * Design system: Material Design 3 (esquema de cores "agro" — verde grão/terra).
+ * Todos os tokens em oklch. Nunca usar cores fixas nos componentes.
+ */
+
+@theme inline {
+  --radius: 0.75rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 12px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--on-surface);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+  --color-surface: var(--surface);
+  --color-on-surface: var(--on-surface);
+  --color-surface-variant: var(--surface-variant);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
+  --color-scrim: var(--scrim);
+
+  --text-display-small: 2.25rem;
+  --text-display-small--line-height: 2.75rem;
+  --text-headline-medium: 1.75rem;
+  --text-headline-medium--line-height: 2.25rem;
+  --text-headline-small: 1.5rem;
+  --text-headline-small--line-height: 2rem;
+  --text-title-large: 1.375rem;
+  --text-title-large--line-height: 1.75rem;
+  --text-title-medium: 1rem;
+  --text-title-medium--line-height: 1.5rem;
+  --text-title-medium--font-weight: 500;
+  --text-body-large: 1rem;
+  --text-body-large--line-height: 1.5rem;
+  --text-body-medium: 0.875rem;
+  --text-body-medium--line-height: 1.25rem;
+  --text-body-small: 0.75rem;
+  --text-body-small--line-height: 1rem;
+  --text-label-large: 0.875rem;
+  --text-label-large--line-height: 1.25rem;
+  --text-label-large--font-weight: 500;
+
+  --shadow-elev-1: 0 1px 3px 1px oklch(0 0 0 / 0.15), 0 1px 2px 0 oklch(0 0 0 / 0.3);
+  --shadow-elev-2: 0 2px 6px 2px oklch(0 0 0 / 0.15), 0 1px 2px 0 oklch(0 0 0 / 0.3);
+  --shadow-elev-3: 0 4px 8px 3px oklch(0 0 0 / 0.15), 0 1px 3px 0 oklch(0 0 0 / 0.3);
+}
+
+:root {
+  --background: oklch(0.985 0.012 110);
+  --surface: oklch(0.985 0.012 110);
+  --on-surface: oklch(0.22 0.02 110);
+  --surface-variant: oklch(0.92 0.02 110);
+  --on-surface-variant: oklch(0.45 0.024 110);
+  --surface-container: oklch(0.95 0.018 110);
+  --surface-container-high: oklch(0.925 0.022 110);
+  --primary: oklch(0.46 0.11 145);
+  --on-primary: oklch(0.99 0.005 145);
+  --primary-container: oklch(0.88 0.07 145);
+  --on-primary-container: oklch(0.26 0.07 145);
+  --secondary: oklch(0.52 0.06 95);
+  --on-secondary: oklch(0.99 0.005 95);
+  --secondary-container: oklch(0.9 0.055 105);
+  --on-secondary-container: oklch(0.3 0.05 105);
+  --tertiary-container: oklch(0.9 0.05 60);
+  --on-tertiary-container: oklch(0.32 0.06 60);
+  --outline: oklch(0.62 0.02 110);
+  --outline-variant: oklch(0.85 0.018 110);
+  --error: oklch(0.51 0.19 27);
+  --on-error: oklch(0.99 0.01 27);
+  --error-container: oklch(0.92 0.06 27);
+  --on-error-container: oklch(0.33 0.13 27);
+  --scrim: oklch(0 0 0 / 0.4);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-outline-variant);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+    font-family:
+      "Roboto",
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
