@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "agendamento-graos"
+version = "0.1.0"
+description = "API de Agendamento de Grãos"
+authors = ["Roberto Eunápio <roberto.euinapio@estudantes.ifg.edu.br>"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+fastapi = "^0.110.0"
+uvicorn = "^0.28.0"
+pydantic = "^2.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
