@@ -1,34 +1,31 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
-from .agendamentos import controller as agendamentos_controller
-from .agendamentos.erros import (
-    AgendamentoBloqueado,
-    AgendamentoNaoEncontrado,
-    ConflitoDeAgendamento,
-    ErroDeAgendamento,
-)
+
 from .database import Base, engine
+from .agendamentos.controller import router as agendamentos_router
+from .usuarios import erros as usuarios_erros
+from .usuarios.controller import router as usuarios_router
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="API Agendamento de Grãos", version="0.6.0")
+app = FastAPI(title="API Agendamento de Grãos")
 
-app.include_router(agendamentos_controller.router)
-
-
-@app.get("/")
-def raiz():
-    return {"mensagem": "API do Agendamento de Grãos está funcionando!"}
+app.include_router(agendamentos_router)
+app.include_router(usuarios_router)
 
 
-@app.exception_handler(ErroDeAgendamento)
-def traduzir_recusas_de_negocio(request: Request, erro: ErroDeAgendamento):
-    """Traduz as exceções do service.py em respostas HTTP apropriadas."""
-    if isinstance(erro, AgendamentoNaoEncontrado):
-        status_code = 404
-    elif isinstance(erro, (ConflitoDeAgendamento, AgendamentoBloqueado)):
-        status_code = 409
-    else:
-        status_code = 400
+@app.exception_handler(usuarios_erros.EmailJaCadastradoError)
+def email_ja_cadastrado_handler(request: Request, exc: usuarios_erros.EmailJaCadastradoError):
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content={"detail": "E-mail já cadastrado"},
+    )
 
-    return JSONResponse(status_code=status_code, content={"detail": str(erro)})
+
+@app.exception_handler(usuarios_erros.CredenciaisInvalidasError)
+def credenciais_invalidas_handler(request: Request, exc: usuarios_erros.CredenciaisInvalidasError):
+    return JSONResponse(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        content={"detail": "E-mail ou senha incorretos"},
+        headers={"WWW-Authenticate": "Bearer"},
+    )
