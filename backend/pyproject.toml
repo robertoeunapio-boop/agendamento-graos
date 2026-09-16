@@ -9,10 +9,13 @@ package-mode = false
 python = ">=3.10"
 fastapi = "^0.110.0"
 uvicorn = "^0.28.0"
-pydantic = "^2.6.0"
+pydantic = {extras = ["email"], version = "^2.13.5"}
 sqlalchemy = "^2.0.52"
 psycopg = {extras = ["binary"], version = "^3.3.5"}
 python-dotenv = "^1.2.3"
+bcrypt = "^5.0.0"
+pyjwt = "^2.14.0"
+python-multipart = "^0.0.32"
 
 [build-system]
 requires = ["poetry-core"]
