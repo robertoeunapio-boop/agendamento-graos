@@ -1,12 +1,10 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
-from .database import Base, engine
 from .agendamentos.controller import router as agendamentos_router
 from .usuarios import erros as usuarios_erros
 from .usuarios.controller import router as usuarios_router
 
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Agendamento de Grãos")
 
