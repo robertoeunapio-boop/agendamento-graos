@@ -1,12 +1,20 @@
 from fastapi import FastAPI, Request, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .agendamentos.controller import router as agendamentos_router
 from .usuarios import erros as usuarios_erros
 from .usuarios.controller import router as usuarios_router
 
-
 app = FastAPI(title="API Agendamento de Grãos")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(agendamentos_router)
 app.include_router(usuarios_router)
