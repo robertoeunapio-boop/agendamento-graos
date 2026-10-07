@@ -1,68 +1,40 @@
 import 'package:flutter/material.dart';
-import '../models/usuario.dart';
+import 'package:provider/provider.dart';
 import '../services/sessao_service.dart';
-import 'login_screen.dart';
+import '../widgets/app_drawer.dart';
 
 class InicioScreen extends StatelessWidget {
-  final SessaoService sessao;
-
-  const InicioScreen({super.key, required this.sessao});
+  const InicioScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final usuario = context.watch<SessaoService>().usuario;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Início'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              sessao.sair();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LoginScreen(sessao: sessao),
-                ),
-              );
-            },
-          ),
-        ],
       ),
-      body: FutureBuilder<Usuario>(
-        future: sessao.buscarUsuarioLogado(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('Erro ao carregar usuário: ${snapshot.error}'),
-            );
-          }
-
-          final usuario = snapshot.data!;
-
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Olá, ${usuario.nome}!',
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
+      drawer: const AppDrawer(),
+      body: Center(
+        child: usuario == null
+            ? const CircularProgressIndicator()
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Olá, ${usuario.nome}!',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  usuario.email,
-                  style: const TextStyle(color: Colors.grey, fontSize: 16),
-                ),
-              ],
-            ),
-          );
-        },
+                  const SizedBox(height: 8),
+                  Text(
+                    usuario.email,
+                    style: const TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                ],
+              ),
       ),
     );
   }
