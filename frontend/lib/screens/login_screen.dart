@@ -1,133 +1,122 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../routes.dart';
 import '../services/sessao_service.dart';
-import 'cadastro_screen.dart';
-import 'inicio_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  final SessaoService sessao;
-
-  const LoginScreen({super.key, required this.sessao});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _senhaController = TextEditingController();
-  bool _carregando = false;
-  String? _erro;
+  final emailController = TextEditingController();
+  final senhaController = TextEditingController();
+  bool carregando = false;
+  String? erro;
 
   Future<void> _entrar() async {
     setState(() {
-      _carregando = true;
-      _erro = null;
+      carregando = true;
+      erro = null;
     });
 
     try {
-      await widget.sessao.entrar(_emailController.text, _senhaController.text);
-
-      if (!mounted) return;
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => InicioScreen(sessao: widget.sessao),
-        ),
-      );
+      await context.read<SessaoService>().entrar(
+            emailController.text,
+            senhaController.text,
+          );
     } on ErroDeLogin catch (e) {
       setState(() {
-        _erro = e.mensagem;
+        carregando = false;
+        erro = e.mensagem;
       });
-    } catch (e) {
-      setState(() {
-        _erro = 'Erro de conexão com o servidor da API.';
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          _carregando = false;
-        });
-      }
+      return;
     }
+
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, AppRoutes.inicio);
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    senhaController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Agendamento de Grãos')),
+      appBar: AppBar(title: const Text('Agenda de Grãos')),
       body: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Icon(Icons.agriculture, size: 72, color: Colors.green),
-              const SizedBox(height: 8),
-              const Text(
-                'Entrar',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 24),
-              if (_erro != null) ...[
-                Text(
-                  _erro!,
-                  style: const TextStyle(color: Colors.red),
+        child: SingleChildScrollView(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Icon(Icons.agriculture, size: 72),
+                const SizedBox(height: 8),
+                const Text(
+                  'Entrar',
                   textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'E-mail',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 16),
-              ],
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'E-mail',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _senhaController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Senha',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _carregando ? null : _entrar,
-                child: Text(_carregando ? 'Entrando...' : 'Entrar'),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () {},
-                      child: const Text('Esqueci a senha'),
-                    ),
+                TextField(
+                  controller: senhaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Senha',
+                    border: OutlineInputBorder(),
                   ),
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CadastroScreen(
-                              repositorio: widget.sessao.repositorio,
-                            ),
-                          ),
-                        );
-                      },
-                      child: const Text('Criar uma conta'),
-                    ),
+                  obscureText: true,
+                ),
+                if (erro != null) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    erro!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ],
-              ),
-            ],
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: carregando ? null : _entrar,
+                  child: Text(carregando ? 'Entrando...' : 'Entrar'),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {},
+                        child: const Text('Esqueci a senha'),
+                      ),
+                    ),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, AppRoutes.cadastro);
+                        },
+                        child: const Text('Criar uma conta'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

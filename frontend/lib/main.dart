@@ -1,30 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'repositories/usuario_repository.dart';
+import 'routes.dart';
+import 'screens/cadastro_screen.dart';
+import 'screens/inicio_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/sessao_service.dart';
+import 'widgets/rota_protegida.dart';
 
 void main() {
-  final repositorio = UsuarioRepository();
-  final sessao = SessaoService(repositorio: repositorio);
-
-  runApp(AgendamentoGraosApp(sessao: sessao));
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => SessaoService(repositorio: UsuarioRepository()),
+      child: const AgendaGraosApp(),
+    ),
+  );
 }
 
-class AgendamentoGraosApp extends StatelessWidget {
-  final SessaoService sessao;
-
-  const AgendamentoGraosApp({super.key, required this.sessao});
+class AgendaGraosApp extends StatelessWidget {
+  const AgendaGraosApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Agendamento de Grãos',
+      title: 'Agenda de Grãos',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        useMaterial3: true,
-      ),
-      home: LoginScreen(sessao: sessao),
+      theme: ThemeData(colorSchemeSeed: Colors.green),
+      initialRoute: AppRoutes.login,
+      routes: {
+        AppRoutes.login: (context) => const LoginScreen(),
+        AppRoutes.cadastro: (context) => const CadastroScreen(),
+        AppRoutes.inicio: (context) => const RotaProtegida(tela: InicioScreen()),
+      },
     );
   }
 }
