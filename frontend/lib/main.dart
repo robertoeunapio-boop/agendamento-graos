@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'repositories/token_repository.dart';
 import 'repositories/usuario_repository.dart';
 import 'routes.dart';
 import 'screens/cadastro_screen.dart';
@@ -8,10 +9,20 @@ import 'screens/login_screen.dart';
 import 'services/sessao_service.dart';
 import 'widgets/rota_protegida.dart';
 
-void main() {
+Future<void> main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final sessao = SessaoService(
+    UsuarioRepository(),
+    tokens: TokenRepository(),
+  );
+
+  await sessao.restaurar();
+
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => SessaoService(repositorio: UsuarioRepository()),
+    ChangeNotifierProvider.value(
+      value: sessao,
       child: const AgendaGraosApp(),
     ),
   );
@@ -26,7 +37,7 @@ class AgendaGraosApp extends StatelessWidget {
       title: 'Agenda de Grãos',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.green),
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.inicio,
       routes: {
         AppRoutes.login: (context) => const LoginScreen(),
         AppRoutes.cadastro: (context) => const CadastroScreen(),
