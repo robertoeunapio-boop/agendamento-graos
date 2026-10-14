@@ -8,17 +8,14 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final usuario = context.watch<SessaoService>().usuario;
+    final usuario = context.watch<SessaoService>().usuario!;
 
     return Drawer(
       child: ListView(
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(usuario?.nome ?? 'Usuário'),
-            accountEmail: Text(usuario?.email ?? ''),
-            currentAccountPicture: const CircleAvatar(
-              child: Icon(Icons.person, size: 36),
-            ),
+            accountName: Text(usuario.nome),
+            accountEmail: Text(usuario.email),
           ),
           ListTile(
             leading: const Icon(Icons.home),
@@ -26,21 +23,11 @@ class AppDrawer extends StatelessWidget {
             onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.inicio),
           ),
           ListTile(
-            leading: const Icon(Icons.calendar_today),
-            title: const Text('Agendamentos'),
-            onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.agendamentos),
-          ),
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Perfil'),
-            onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.perfil),
-          ),
-          const Divider(),
-          ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sair'),
-            onTap: () {
-              context.read<SessaoService>().sair();
+            onTap: () async {
+              await context.read<SessaoService>().sair();
+              if (!context.mounted) return;
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 AppRoutes.login,

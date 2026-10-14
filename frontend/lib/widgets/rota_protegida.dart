@@ -4,13 +4,17 @@ import '../screens/login_screen.dart';
 import '../services/sessao_service.dart';
 
 class RotaProtegida extends StatelessWidget {
-  const RotaProtegida({super.key, required this.tela});
-
   final Widget tela;
+  const RotaProtegida({super.key, required this.tela});
 
   @override
   Widget build(BuildContext context) {
-    final estaLogado = context.watch<SessaoService>().estaLogado;
-    return estaLogado ? tela : const LoginScreen();
+    final sessao = context.watch<SessaoService>();
+
+    if (!sessao.logado) {
+      return const LoginScreen();
+    }
+
+    return tela;
   }
 }

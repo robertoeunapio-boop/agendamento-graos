@@ -2,68 +2,64 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/usuario.dart';
 
-class UsuarioRepository {
-  final String baseUrl;
-  final http.Client cliente;
+const enderecoDaApi = 'http://127.0.0.1:8000';
 
-  UsuarioRepository({
-    this.baseUrl = 'http://127.0.0.1:8000',
-    http.Client? cliente,
-  }) : cliente = cliente ?? http.Client();
+class RecusaDaApi implements Exception {
+  RecusaDaApi(this.status, this.mensagem);
+  final int status;
+  final String mensagem;
+}
+
+class UsuarioRepository {
+  UsuarioRepository({http.Client? cliente}) : cliente = cliente ?? http.Client();
+  final http.Client cliente;
 
   Future<String?> entrar(String email, String senha) async {
     final resposta = await cliente.post(
-      Uri.parse('$baseUrl/usuarios/login'),
+      Uri.parse('$enderecoDaApi/usuarios/login'),
       body: {'username': email, 'password': senha},
     );
-
     if (resposta.statusCode != 200) {
       return null;
     }
-
     final corpo = jsonDecode(resposta.body);
     return corpo['access_token'];
   }
 
-  Future<Usuario> quemSouEu(String token) async {
-    final resposta = await cliente.get(
-      Uri.parse('$baseUrl/usuarios/eu'),
-      headers: {'Authorization': 'Bearer $token'},
+  Future<Usuario> cadastrar(String nome, String email, String senha) async {
+    final resposta = await cliente.post(
+      Uri.parse('$enderecoDaApi/usuarios/'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'nome': nome, 'email': email, 'senha': senha}),
     );
-
-    if (resposta.statusCode != 200) {
-      throw Exception('Falha ao autenticar token');
+    if (resposta.statusCode != 201) {
+      throw RecusaDaApi(resposta.statusCode, _frase(resposta.body));
     }
-
     return Usuario.fromJson(jsonDecode(resposta.body));
   }
 
-  Future<String?> cadastrar(String nome, String email, String senha) async {
-    final resposta = await cliente.post(
-      Uri.parse('$baseUrl/usuarios/'),
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'accept': 'application/json',
-      },
-      body: jsonEncode({
-        'nome': nome,
-        'email': email,
-        'senha': senha,
-      }),
+  Future<Usuario> quemSouEu(String token) async {
+    final resposta = await cliente.get(
+      Uri.parse('$enderecoDaApi/usuarios/eu'),
+      headers: {'Authorization': 'Bearer $token'},
     );
-
-    if (resposta.statusCode == 201) {
-      return null; 
+    if (resposta.statusCode != 200) {
+      throw RecusaDaApi(resposta.statusCode, _frase(resposta.body));
     }
+    return Usuario.fromJson(jsonDecode(resposta.body));
+  }
 
-    if (resposta.statusCode == 422) {
-      return 'A senha deve ter no mínimo 6 caracteres e o e-mail deve ser válido.';
-    }
-
-    if (resposta.statusCode == 409) {
-      return 'Este e-mail já está cadastrado no sistema.';
-    }
-
-    return 'Erro ao criar conta. Tente novamente.';
+  String _frase(String corpo) {
+    try {
+      final detalhe = jsonDecode(corpo)['detail'];
+      if (detalhe is String) {
+        return detalhe;
+      }
+      if (detalhe is List && detalhe.isNotEmpty) {
+        final primeiro = detalhe[0];
+        return '${primeiro['loc'].last}: ${primeiro['msg']}';
+      }
+    } catch (_) {}
+    return 'Erro inesperado na API.';
   }
 }

@@ -1,54 +1,93 @@
 import 'package:flutter/foundation.dart';
 import '../models/usuario.dart';
+import '../repositories/token_repository.dart';
 import '../repositories/usuario_repository.dart';
 
 class ErroDeLogin implements Exception {
-  final String mensagem;
   ErroDeLogin(this.mensagem);
+  final String mensagem;
+}
+
+class ErroDeCadastro implements Exception {
+  ErroDeCadastro(this.mensagem);
+  final String mensagem;
 }
 
 class SessaoService extends ChangeNotifier {
+  SessaoService(this.repositorio, {TokenRepository? tokens})
+      : tokens = tokens ?? TokenRepository();
+
   final UsuarioRepository repositorio;
-  String? _token;
-  Usuario? _usuario;
+  final TokenRepository tokens;
 
-  SessaoService({required this.repositorio});
+  String? token;
+  Usuario? usuario;
 
-  String? get token => _token;
-  Usuario? get usuario => _usuario;
-  bool get estaLogado => _token != null;
+  bool get logado => token != null;
+  bool get estaAutenticado => logado;
 
   Future<void> entrar(String email, String senha) async {
-    if (email.trim().isEmpty || senha.trim().isEmpty) {
+    if (email.isEmpty || senha.isEmpty) {
       throw ErroDeLogin('Preencha o e-mail e a senha');
     }
-
     String? recebido;
     Usuario? quem;
-
     try {
-      recebido = await repositorio.entrar(email.trim(), senha.trim());
+      recebido = await repositorio.entrar(email, senha);
       if (recebido != null) {
         quem = await repositorio.quemSouEu(recebido);
       }
     } catch (e) {
-      throw ErroDeLogin('Não consegui falar com a API. O uvicorn está a rodar?');
+      throw ErroDeLogin('Não consegui falar com a API. O uvicorn está rodando?');
     }
-
     if (recebido == null) {
       throw ErroDeLogin('E-mail ou senha incorretos');
     }
-
-    _token = recebido;
-    _usuario = quem;
-    
+    token = recebido;
+    usuario = quem;
+    await tokens.salvar(recebido);
     notifyListeners();
   }
 
-  void sair() {
-    _token = null;
-    _usuario = null;
-    
+  Future<void> cadastrar(String nome, String email, String senha) async {
+    if (nome.isEmpty || email.isEmpty || senha.isEmpty) {
+      throw ErroDeCadastro('Preencha o nome, o e-mail e a senha');
+    }
+    try {
+      await repositorio.cadastrar(nome, email, senha);
+      await entrar(email, senha);
+    } on RecusaDaApi catch (e) {
+      if (e.status == 409) {
+        throw ErroDeCadastro('Já existe uma conta com este e-mail');
+      }
+      throw ErroDeCadastro(e.mensagem);
+    } on ErroDeLogin {
+      throw ErroDeCadastro('Conta criada, mas não consegui entrar. Tente pelo login.');
+    } catch (e) {
+      throw ErroDeCadastro('Não consegui falar com a API. O uvicorn está rodando?');
+    }
+  }
+
+  Future<void> restaurar() async {
+    final guardado = await tokens.ler();
+    if (guardado == null) {
+      return;
+    }
+    try {
+      usuario = await repositorio.quemSouEu(guardado);
+      token = guardado;
+      notifyListeners();
+    } on RecusaDaApi {
+      await tokens.apagar();
+    } catch (e) {
+      // Se a API estiver fora do ar, preserva o token para nova tentativa no futuro
+    }
+  }
+
+  Future<void> sair() async {
+    await tokens.apagar();
+    token = null;
+    usuario = null;
     notifyListeners();
   }
 }
