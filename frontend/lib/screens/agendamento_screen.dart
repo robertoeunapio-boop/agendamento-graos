@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/agendamento.dart';
-import '../routes.dart';
 import '../services/agendamento_service.dart';
 import 'agendamentos_screen.dart';
 
 class AgendamentoScreen extends StatefulWidget {
   const AgendamentoScreen({super.key, this.id});
+
   final int? id;
 
   @override
@@ -15,7 +15,6 @@ class AgendamentoScreen extends StatefulWidget {
 
 class _AgendamentoScreenState extends State<AgendamentoScreen> {
   late Future<Agendamento> pedido;
-  String? erro;
 
   @override
   void initState() {
@@ -31,53 +30,6 @@ class _AgendamentoScreenState extends State<AgendamentoScreen> {
     });
   }
 
-  Future<void> editar(Agendamento item) async {
-    final salvou = await Navigator.pushNamed(
-      context,
-      AppRoutes.formulario,
-      arguments: item,
-    );
-    if (salvou == true && mounted) {
-      Navigator.pop(context, true);
-    }
-  }
-
-  Future<void> excluir(Agendamento item) async {
-    final certeza = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Excluir agendamento de ${item.produtor}?'),
-        content: const Text('Tem certeza? O agendamento será removido permanentemente.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Excluir'),
-          ),
-        ],
-      ),
-    );
-
-    if (certeza != true || !mounted) {
-      return;
-    }
-
-    try {
-      await context.read<AgendamentoService>().excluir(item.id);
-    } on ErroDeAgendamentos catch (e) {
-      setState(() {
-        erro = '$e';
-      });
-      return;
-    }
-
-    if (!mounted) return;
-    Navigator.pop(context, true);
-  }
-
   @override
   Widget build(BuildContext context) {
     if (widget.id == null) {
@@ -85,7 +37,7 @@ class _AgendamentoScreenState extends State<AgendamentoScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalhes do Agendamento')),
+      appBar: AppBar(title: const Text('Agendamento')),
       body: FutureBuilder<Agendamento>(
         future: pedido,
         builder: (context, snapshot) {
@@ -118,7 +70,6 @@ class _AgendamentoScreenState extends State<AgendamentoScreen> {
 
           final item = snapshot.data!;
           return ListView(
-            padding: const EdgeInsets.all(16),
             children: [
               ListTile(
                 leading: const Icon(Icons.person),
@@ -140,31 +91,6 @@ class _AgendamentoScreenState extends State<AgendamentoScreen> {
                 title: const Text('Status'),
                 subtitle: Text(item.status),
               ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => editar(item),
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Editar'),
-                  ),
-                  const SizedBox(width: 16),
-                  OutlinedButton.icon(
-                    onPressed: () => excluir(item),
-                    icon: const Icon(Icons.delete),
-                    label: const Text('Excluir'),
-                  ),
-                ],
-              ),
-              if (erro != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  erro!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.red),
-                ),
-              ],
             ],
           );
         },

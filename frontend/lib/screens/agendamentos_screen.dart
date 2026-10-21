@@ -21,7 +21,7 @@ class _AgendamentosScreenState extends State<AgendamentosScreen> {
     agendamentos = context.read<AgendamentoService>().listar();
   }
 
-  void pedirDeNovo() {
+  void tentarDeNovo() {
     setState(() {
       agendamentos = context.read<AgendamentoService>().listar();
     });
@@ -54,7 +54,7 @@ class _AgendamentosScreenState extends State<AgendamentosScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: pedirDeNovo,
+                    onPressed: tentarDeNovo,
                     child: const Text('Tentar de novo'),
                   ),
                 ],
@@ -63,6 +63,7 @@ class _AgendamentosScreenState extends State<AgendamentosScreen> {
           }
 
           final lista = snapshot.data!;
+
           if (lista.isEmpty) {
             return const Center(child: Text('Nenhum agendamento ainda.'));
           }
@@ -76,30 +77,17 @@ class _AgendamentosScreenState extends State<AgendamentosScreen> {
                 title: Text('${item.produtor} - ${item.tipoGrao}'),
                 subtitle: Text('${item.quantidadeToneladas}t (${item.status})'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () async {
-                  final mudou = await Navigator.pushNamed(
+                onTap: () {
+                  Navigator.pushNamed(
                     context,
                     AppRoutes.agendamento,
                     arguments: item.id,
                   );
-                  if (mudou == true) {
-                    pedirDeNovo();
-                  }
                 },
               );
             },
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Novo agendamento',
-        onPressed: () async {
-          final salvou = await Navigator.pushNamed(context, AppRoutes.formulario);
-          if (salvou == true) {
-            pedirDeNovo();
-          }
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }
