@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'models/agendamento.dart';
 import 'repositories/agendamento_repository.dart';
 import 'repositories/token_repository.dart';
 import 'repositories/usuario_repository.dart';
@@ -8,7 +7,6 @@ import 'routes.dart';
 import 'screens/agendamento_screen.dart';
 import 'screens/agendamentos_screen.dart';
 import 'screens/cadastro_screen.dart';
-import 'screens/formulario_screen.dart';
 import 'screens/inicio_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/agendamento_service.dart';
@@ -49,11 +47,6 @@ class AgendaGraosApp extends StatelessWidget {
         AppRoutes.agendamentos: (context) => const RotaProtegida(tela: AgendamentosScreen()),
         AppRoutes.agendamento: (context) => RotaProtegida(
           tela: AgendamentoScreen(id: ModalRoute.of(context)!.settings.arguments as int?),
-        ),
-        AppRoutes.formulario: (context) => RotaProtegida(
-          tela: FormularioScreen(
-            agendamento: ModalRoute.of(context)!.settings.arguments as Agendamento?,
-          ),
         ),
       },
     );

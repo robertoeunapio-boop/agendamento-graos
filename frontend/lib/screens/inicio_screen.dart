@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../routes.dart';
 import '../services/sessao_service.dart';
 import '../widgets/app_drawer.dart';
 
@@ -32,6 +33,14 @@ class InicioScreen extends StatelessWidget {
                   Text(
                     usuario.email,
                     style: const TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                  const SizedBox(height: 32),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.agendamentos);
+                    },
+                    icon: const Icon(Icons.agriculture),
+                    label: const Text('Ver os agendamentos'),
                   ),
                 ],
               ),

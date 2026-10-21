@@ -23,6 +23,11 @@ class AppDrawer extends StatelessWidget {
             onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.inicio),
           ),
           ListTile(
+            leading: const Icon(Icons.agriculture),
+            title: const Text('Agendamentos'),
+            onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.agendamentos),
+          ),
+          ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sair'),
             onTap: () async {
