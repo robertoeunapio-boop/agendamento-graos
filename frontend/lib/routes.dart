@@ -3,5 +3,6 @@ class AppRoutes {
   static const cadastro = '/cadastro';
   static const inicio = '/inicio';
   static const agendamentos = '/agendamentos';
-  static const perfil = '/perfil';
+  static const agendamento = '/agendamento';
+  static const formulario = '/formulario';
 }
