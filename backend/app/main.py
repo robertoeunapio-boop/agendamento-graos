@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from .agendamentos import erros as agendamentos_erros
 from .agendamentos.controller import router as agendamentos_router
 from .usuarios import erros as usuarios_erros
 from .usuarios.controller import router as usuarios_router
@@ -34,4 +35,28 @@ def credenciais_invalidas_handler(request: Request, exc: usuarios_erros.Credenci
         status_code=status.HTTP_401_UNAUTHORIZED,
         content={"detail": "E-mail ou senha incorretos"},
         headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+@app.exception_handler(agendamentos_erros.AgendamentoNaoEncontrado)
+def agendamento_nao_encontrado_handler(request: Request, exc: agendamentos_erros.AgendamentoNaoEncontrado):
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"detail": str(exc)},
+    )
+
+
+@app.exception_handler(agendamentos_erros.ConflitoDeAgendamento)
+def conflito_de_agendamento_handler(request: Request, exc: agendamentos_erros.ConflitoDeAgendamento):
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content={"detail": str(exc)},
+    )
+
+
+@app.exception_handler(agendamentos_erros.AgendamentoBloqueado)
+def agendamento_bloqueado_handler(request: Request, exc: agendamentos_erros.AgendamentoBloqueado):
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content={"detail": str(exc)},
     )
