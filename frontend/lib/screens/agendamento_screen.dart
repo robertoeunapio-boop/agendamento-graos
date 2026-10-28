@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../models/agendamento.dart';
 import '../routes.dart';
 import '../services/agendamento_service.dart';
+import '../theme/app_theme.dart';
+import '../theme/status_visual.dart';
 import 'agendamentos_screen.dart';
 
 class AgendamentoScreen extends StatefulWidget {
@@ -93,64 +95,109 @@ class _AgendamentoScreenState extends State<AgendamentoScreen> {
 
           if (snapshot.hasError) {
             return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.cloud_off, size: 56),
-                  const SizedBox(height: 16),
-                  const Text('Não consegui carregar o agendamento'),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${snapshot.error}',
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: tentarDeNovo,
-                    child: const Text('Tentar de novo'),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.cloud_off, size: 64, color: Cores.terra),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Não consegui carregar o agendamento',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${snapshot.error}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Cores.perigo, fontSize: 16),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: tentarDeNovo,
+                      child: const Text('Tentar de novo'),
+                    ),
+                  ],
+                ),
               ),
             );
           }
 
           final item = snapshot.data!;
+          final visual = statusVisual(item.status);
           return ListView(
+            padding: const EdgeInsets.all(16),
             children: [
-              ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text('Produtor'),
-                subtitle: Text(item.produtor),
+              Card(
+                color: Cores.verdeClaro,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: visual.cor, width: 1.5),
+                ),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.person, color: Cores.verdeFolha),
+                      title: const Text('Produtor'),
+                      subtitle: Text(
+                        item.produtor,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.grass, color: Cores.verdeFolha),
+                      title: const Text('Tipo de Grão'),
+                      subtitle: Text(
+                        item.tipoGrao,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.scale, color: Cores.verdeFolha),
+                      title: const Text('Quantidade'),
+                      subtitle: Text(
+                        '${item.quantidadeToneladas} t',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    ListTile(
+                      leading: Icon(visual.icone, color: visual.cor),
+                      title: const Text('Status'),
+                      subtitle: Text(
+                        item.status,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: visual.cor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              ListTile(
-                leading: const Icon(Icons.grass),
-                title: const Text('Tipo de Grão'),
-                subtitle: Text(item.tipoGrao),
-              ),
-              ListTile(
-                leading: const Icon(Icons.scale),
-                title: const Text('Quantidade'),
-                subtitle: Text('${item.quantidadeToneladas} t'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.info),
-                title: const Text('Status'),
-                subtitle: Text(item.status),
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: () => editar(item),
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Editar'),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => editar(item),
+                      icon: const Icon(Icons.edit),
+                      label: const Text('Editar'),
+                    ),
                   ),
-                  const SizedBox(width: 16),
-                  OutlinedButton.icon(
-                    onPressed: () => excluir(item),
-                    icon: const Icon(Icons.delete),
-                    label: const Text('Excluir'),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Cores.perigo,
+                        side: const BorderSide(color: Cores.perigo, width: 1.5),
+                      ),
+                      onPressed: () => excluir(item),
+                      icon: const Icon(Icons.delete),
+                      label: const Text('Excluir'),
+                    ),
                   ),
                 ],
               ),
@@ -159,7 +206,7 @@ class _AgendamentoScreenState extends State<AgendamentoScreen> {
                 Text(
                   erro!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: Cores.perigo, fontSize: 16),
                 ),
               ],
             ],
