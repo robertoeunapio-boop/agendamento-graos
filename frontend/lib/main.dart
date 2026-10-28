@@ -13,6 +13,7 @@ import 'screens/inicio_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/agendamento_service.dart';
 import 'services/sessao_service.dart';
+import 'theme/app_theme.dart';
 import 'widgets/rota_protegida.dart';
 
 Future<void> main() async {
@@ -40,7 +41,16 @@ class AgendaGraosApp extends StatelessWidget {
     return MaterialApp(
       title: 'Agenda de Grãos',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorSchemeSeed: Colors.green),
+      theme: temaDoApp(),
+      builder: (context, child) => ColoredBox(
+        color: Cores.verdeClaro,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: child,
+          ),
+        ),
+      ),
       initialRoute: AppRoutes.inicio,
       routes: {
         AppRoutes.login: (context) => const LoginScreen(),
