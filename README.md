@@ -65,3 +65,13 @@ RESTRIÇÕES
 - Não invente campos que não estão na lista acima.
 
 - Todos os textos da interface em português do Brasil.
+
+## App (Flutter)
+
+A tela de agendamentos chama `GET /agendamentos/` pelas camadas do app (tela, `AgendamentoService`, `AgendamentoRepository`), com o token no cabeçalho, e mostra só os agendamentos de quem está logado. Ela tem quatro estados: carregando, erro (com Tentar de novo), lista vazia e a lista.
+
+Tocar num agendamento abre o detalhe pela rota `/agendamento`, com o id nos `arguments`: o detalhe busca o agendamento na API (`GET /agendamentos/{id}`), para mostrar o dado de agora.
+
+O app cria, edita e exclui agendamentos pelas camadas (tela, `AgendamentoService`, `AgendamentoRepository`), com o token no cabeçalho: `POST /agendamentos/`, `PUT /agendamentos/{id}` e `DELETE /agendamentos/{id}`. Um formulário só (`FormularioScreen`) serve para criar e para editar.
+
+A validação acontece nas duas pontas: o `validator` de cada campo antes de enviar, e a API, que recusa com 422 ou 409; a frase da API aparece na tela. Excluir pede confirmação num diálogo. Depois de cada operação, a tela fecha com `true`, e a lista pede os agendamentos de novo.

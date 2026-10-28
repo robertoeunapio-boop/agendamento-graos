@@ -35,4 +35,58 @@ class AgendamentoService {
       throw ErroDeAgendamentos('Não consegui falar com a API. O uvicorn está rodando?');
     }
   }
+
+  Future<Agendamento> criar(
+    String produtor,
+    String tipoGrao,
+    double quantidadeToneladas,
+    String status,
+  ) async {
+    try {
+      return await repositorio.criar(
+        sessao.token!,
+        produtor,
+        tipoGrao,
+        quantidadeToneladas,
+        status,
+      );
+    } on RecusaDaApi catch (e) {
+      throw ErroDeAgendamentos(e.mensagem);
+    } on Exception {
+      throw ErroDeAgendamentos('Não consegui falar com a API. O uvicorn está rodando?');
+    }
+  }
+
+  Future<Agendamento> atualizar(
+    int id,
+    String produtor,
+    String tipoGrao,
+    double quantidadeToneladas,
+    String status,
+  ) async {
+    try {
+      return await repositorio.atualizar(
+        sessao.token!,
+        id,
+        produtor,
+        tipoGrao,
+        quantidadeToneladas,
+        status,
+      );
+    } on RecusaDaApi catch (e) {
+      throw ErroDeAgendamentos(e.mensagem);
+    } on Exception {
+      throw ErroDeAgendamentos('Não consegui falar com a API. O uvicorn está rodando?');
+    }
+  }
+
+  Future<void> excluir(int id) async {
+    try {
+      await repositorio.excluir(sessao.token!, id);
+    } on RecusaDaApi catch (e) {
+      throw ErroDeAgendamentos(e.mensagem);
+    } on Exception {
+      throw ErroDeAgendamentos('Não consegui falar com a API. O uvicorn está rodando?');
+    }
+  }
 }
