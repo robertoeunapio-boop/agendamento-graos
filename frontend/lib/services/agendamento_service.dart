@@ -16,9 +16,9 @@ class AgendamentoService {
   final AgendamentoRepository repositorio;
   final SessaoService sessao;
 
-  Future<List<Agendamento>> listar() async {
+    Future<List<Agendamento>> listar({String busca = '', String status = ''}) async {
     try {
-      return await repositorio.listar(sessao.token!);
+      return await repositorio.listar(sessao.token!, busca: busca, status: status);
     } on RecusaDaApi catch (e) {
       throw ErroDeAgendamentos(e.mensagem);
     } on Exception {

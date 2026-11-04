@@ -5,6 +5,7 @@ import '../routes.dart';
 import '../services/agendamento_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/status_visual.dart';
+import '../widgets/aviso.dart';
 import 'agendamentos_screen.dart';
 
 class AgendamentoScreen extends StatefulWidget {
@@ -69,12 +70,15 @@ class _AgendamentoScreenState extends State<AgendamentoScreen> {
     try {
       await context.read<AgendamentoService>().excluir(agendamento.id);
     } on ErroDeAgendamentos catch (e) {
+      if (!mounted) return;
       setState(() {
         erro = '$e';
       });
+      avisar(context, 'Não deu para excluir', erro: true);
       return;
     }
     if (!mounted) return;
+    avisar(context, 'Agendamento excluído');
     Navigator.pop(context, true);
   }
 

@@ -7,6 +7,7 @@ def listar(
     dono_id: int,
     produtor: str | None = None,
     tipo_grao: str | None = None,
+    status: str | None = None,
 ) -> list[AgendamentoModel]:
     query = db.query(AgendamentoModel).filter(AgendamentoModel.dono_id == dono_id)
 
@@ -14,6 +15,8 @@ def listar(
         query = query.filter(AgendamentoModel.produtor.ilike(f"%{produtor}%"))
     if tipo_grao:
         query = query.filter(AgendamentoModel.tipo_grao.ilike(f"%{tipo_grao}%"))
+    if status:
+        query = query.filter(AgendamentoModel.status.ilike(f"%{status}%"))
 
     return query.all()
 
