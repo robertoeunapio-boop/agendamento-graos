@@ -7,9 +7,21 @@ class AgendamentoRepository {
   AgendamentoRepository({http.Client? cliente}) : cliente = cliente ?? http.Client();
   final http.Client cliente;
 
-  Future<List<Agendamento>> listar(String token) async {
+    Future<List<Agendamento>> listar(
+    String token, {
+    String busca = '',
+    String status = '',
+  }) async {
+    var endereco = Uri.parse('$enderecoDaApi/agendamentos/');
+    final filtros = {
+      if (busca.isNotEmpty) 'produtor': busca,
+      if (status.isNotEmpty) 'status': status,
+    };
+    if (filtros.isNotEmpty) {
+      endereco = endereco.replace(queryParameters: filtros);
+    }
     final resposta = await cliente.get(
-      Uri.parse('$enderecoDaApi/agendamentos/'),
+      endereco,
       headers: {'Authorization': 'Bearer $token'},
     );
     if (resposta.statusCode != 200) {

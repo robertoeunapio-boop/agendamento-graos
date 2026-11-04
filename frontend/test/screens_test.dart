@@ -38,6 +38,7 @@ const doisAgendamentos = [
 ];
 
 int pedidos = 0;
+Uri? ultimoEndereco;
 
 SessaoService sessaoDeMentira({Map<String, Object> guardado = const {}}) {
   SharedPreferences.setMockInitialValues(guardado);
@@ -112,6 +113,7 @@ http.Client acervoDeMentira() {
 
   return MockClient((pedido) async {
     pedidos++;
+    ultimoEndereco = pedido.url;
     final id = int.tryParse(pedido.url.pathSegments.last);
 
     if (pedido.method == 'POST') {
@@ -140,7 +142,15 @@ http.Client acervoDeMentira() {
     }
 
     if (id == null) {
-      return http.Response(jsonEncode(acervo), 200);
+      final busca = (pedido.url.queryParameters['produtor'] ?? '').toLowerCase();
+      final status = (pedido.url.queryParameters['status'] ?? '').toLowerCase();
+      final achados = [
+        for (final item in acervo)
+          if ('${item['produtor']}'.toLowerCase().contains(busca) &&
+              '${item['status']}'.toLowerCase().contains(status))
+            item,
+      ];
+      return http.Response(jsonEncode(achados), 200);
     }
 
     for (final item in acervo) {
@@ -206,6 +216,12 @@ Future<void> excluirRespondendo(WidgetTester tester, String resposta) async {
   await tester.tap(find.text('Excluir'));
   await tester.pumpAndSettle();
   await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.text(resposta)));
+  await tester.pumpAndSettle();
+}
+
+Future<void> buscar(WidgetTester tester, String texto) async {
+  await tester.enterText(find.byType(TextField).first, texto);
+  await tester.testTextInput.receiveAction(TextInputAction.search);
   await tester.pumpAndSettle();
 }
 
@@ -542,5 +558,127 @@ void main() {
       servico.listar(),
       throwsA(isA<ErroDeAgendamentos>().having((e) => '$e', 'texto', 'Token invalido ou vencido')),
     );
+  });
+
+  testWidgets('a busca acha: só o produtor com o pedaço, e o app manda ?produtor=', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await buscar(tester, 'luzia');
+    expect(find.byType(ListTile), findsOneWidget);
+    expect(find.text('Fazenda Santa Luzia - Soja'), findsOneWidget);
+    expect(ultimoEndereco!.queryParameters['produtor'], 'luzia');
+  });
+
+  testWidgets('a busca que não acha: a frase diz o que foi buscado', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await buscar(tester, 'xyz');
+    expect(find.byType(ListTile), findsNothing);
+    expect(find.text('Nenhum agendamento com "xyz" no produtor.'), findsOneWidget);
+  });
+
+  testWidgets('a busca vazia volta a lista inteira, sem parâmetro no endereço', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await buscar(tester, 'luzia');
+    expect(find.byType(ListTile), findsOneWidget);
+    await buscar(tester, '');
+    expect(find.byType(ListTile), findsNWidgets(2));
+    expect(ultimoEndereco!.hasQuery, false);
+  });
+
+  testWidgets('depois de salvar, a lista pede de novo com a mesma busca', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await buscar(tester, 'luzia');
+    await preencherOFormulario(tester, 'Fazenda Luzia Nova', 'Trigo', '10');
+    await tester.tap(find.text('Salvar'));
+    await tester.pumpAndSettle();
+    expect(ultimoEndereco!.queryParameters['produtor'], 'luzia');
+    expect(find.byType(ListTile), findsNWidgets(2));
+    expect(find.text('Sítio Boa Vista - Milho'), findsNothing);
+  });
+
+  testWidgets('salvar dá o aviso Agendamento salvo', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await preencherOFormulario(tester, 'Fazenda Recanto', 'Trigo', '40');
+    await tester.tap(find.text('Salvar'));
+    await tester.pumpAndSettle();
+    expect(find.text('Agendamento salvo'), findsOneWidget);
+  });
+
+  testWidgets('a recusa ao salvar dá o aviso Não deu para salvar, e a frase fica no formulário', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await preencherOFormulario(tester, 'Fazenda Santa Luzia', 'Soja', '10');
+    await tester.tap(find.text('Salvar'));
+    await tester.pumpAndSettle();
+    expect(find.text('Não deu para salvar'), findsOneWidget);
+    expect(
+      find.text("O produtor 'Fazenda Santa Luzia' já possui um agendamento para 'Soja'."),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('excluir dá o aviso Agendamento excluído', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await tester.tap(find.text('Fazenda Santa Luzia - Soja'));
+    await tester.pumpAndSettle();
+    await excluirRespondendo(tester, 'Excluir');
+    expect(find.text('Agendamento excluído'), findsOneWidget);
+  });
+
+  testWidgets('a recusa ao excluir dá o aviso Não deu para excluir', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await tester.tap(find.text('Sítio Boa Vista - Milho'));
+    await tester.pumpAndSettle();
+    await excluirRespondendo(tester, 'Excluir');
+    expect(find.text('Não deu para excluir'), findsOneWidget);
+  });
+
+  testWidgets('o chip Só em transporte filtra pela API: ?status=em transporte', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await tester.tap(find.text('Só em transporte'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ListTile), findsOneWidget);
+    expect(find.text('Sítio Boa Vista - Milho'), findsOneWidget);
+    expect(ultimoEndereco!.queryParameters['status'], 'em transporte');
+  });
+
+  testWidgets('desligar o chip volta a lista inteira', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await tester.tap(find.text('Só em transporte'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Só em transporte'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ListTile), findsNWidgets(2));
+    expect(ultimoEndereco!.hasQuery, false);
+  });
+
+  testWidgets('a busca e o chip vão juntos para a API', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await tester.tap(find.text('Só em transporte'));
+    await tester.pumpAndSettle();
+    await buscar(tester, 'boa');
+    expect(ultimoEndereco!.queryParameters, {'produtor': 'boa', 'status': 'em transporte'});
+    expect(find.text('Sítio Boa Vista - Milho'), findsOneWidget);
+  });
+
+  testWidgets('o x limpa o campo e volta a lista inteira', (tester) async {
+    await abrirOsAgendamentos(tester, acervoDeMentira());
+    await buscar(tester, 'luzia');
+    expect(find.byType(ListTile), findsOneWidget);
+    await tester.tap(find.byTooltip('Limpar a busca'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ListTile), findsNWidgets(2));
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, '');
+  });
+
+  test('o repositório manda a busca e o status como parâmetros de consulta', () async {
+    Uri? endereco;
+    final cliente = MockClient((pedido) async {
+      endereco = pedido.url;
+      return http.Response('[]', 200);
+    });
+    final repositorio = AgendamentoRepository(cliente: cliente);
+    await repositorio.listar('tk-123', busca: 'boa vista', status: 'em transporte');
+    expect(endereco!.queryParameters, {'produtor': 'boa vista', 'status': 'em transporte'});
+    await repositorio.listar('tk-123');
+    expect(endereco!.hasQuery, false);
   });
 }

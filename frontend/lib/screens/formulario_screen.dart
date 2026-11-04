@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/agendamento.dart';
 import '../services/agendamento_service.dart';
+import '../widgets/aviso.dart';
 import 'agendamentos_screen.dart';
 
 class FormularioScreen extends StatefulWidget {
@@ -63,13 +64,16 @@ class _FormularioScreenState extends State<FormularioScreen> {
         );
       }
     } on ErroDeAgendamentos catch (e) {
+      if (!mounted) return;
       setState(() {
         salvando = false;
         erro = '$e';
       });
+      avisar(context, 'Não deu para salvar', erro: true);
       return;
     }
     if (!mounted) return;
+    avisar(context, 'Agendamento salvo');
     Navigator.pop(context, true);
   }
 

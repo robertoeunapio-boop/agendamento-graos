@@ -75,3 +75,14 @@ Tocar num agendamento abre o detalhe pela rota `/agendamento`, com o id nos `arg
 O app cria, edita e exclui agendamentos pelas camadas (tela, `AgendamentoService`, `AgendamentoRepository`), com o token no cabeçalho: `POST /agendamentos/`, `PUT /agendamentos/{id}` e `DELETE /agendamentos/{id}`. Um formulário só (`FormularioScreen`) serve para criar e para editar.
 
 A validação acontece nas duas pontas: o `validator` de cada campo antes de enviar, e a API, que recusa com 422 ou 409; a frase da API aparece na tela. Excluir pede confirmação num diálogo. Depois de cada operação, a tela fecha com `true`, e a lista pede os agendamentos de novo.
+
+A lista tem busca pelo produtor (`GET /agendamentos/?produtor=`), com o x que limpa o campo, e o filtro Só em transporte (`?status=em transporte`); os dois podem valer juntos. Toda ação que muda dados mostra uma faixa: verde quando deu certo, vermelha quando a API recusou.
+
+## Checklist das funcionalidades mínimas
+
+- [x] Autenticação: login e cadastro; sem sessão, a tela de entrada
+- [x] CRUD: o Novo cria, o detalhe edita e exclui
+- [x] Relacionamento com o usuário: cada um vê só os seus agendamentos (o dono vem do token)
+- [x] Validação nas duas pontas: o validator no app, e o 422/409 da API com a frase
+- [x] Busca/filtro: o campo de busca por produtor e o chip Só em transporte, pela API
+- [x] Feedback visual: a faixa verde ou vermelha de toda ação

@@ -1,6 +1,6 @@
+from fastapi import APIRouter, Depends, Query, status
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-
 from ..database import get_db
 from ..seguranca import obter_usuario_atual
 from ..usuarios.models import Usuario
@@ -27,11 +27,16 @@ def criar_agendamento(
 def listar_agendamentos(
     produtor: str | None = None,
     tipo_grao: str | None = None,
+    status_agendamento: str | None = Query(default=None, alias="status"),
     db: Session = Depends(get_db),
     usuario_atual: Usuario = Depends(obter_usuario_atual),
 ):
     return service.listar(
-        db, dono_id=usuario_atual.id, produtor=produtor, tipo_grao=tipo_grao
+        db,
+        dono_id=usuario_atual.id,
+        produtor=produtor,
+        tipo_grao=tipo_grao,
+        status=status_agendamento,
     )
 
 

@@ -12,9 +12,14 @@ def listar(
     dono_id: int,
     produtor: str | None = None,
     tipo_grao: str | None = None,
+    status: str | None = None,
 ):
     return repository.listar(
-        db, dono_id=dono_id, produtor=produtor, tipo_grao=tipo_grao
+        db,
+        dono_id=dono_id,
+        produtor=produtor,
+        tipo_grao=tipo_grao,
+        status=status,
     )
 
 
