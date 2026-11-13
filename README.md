@@ -86,3 +86,13 @@ A lista tem busca pelo produtor (`GET /agendamentos/?produtor=`), com o x que li
 - [x] Validação nas duas pontas: o validator no app, e o 422/409 da API com a frase
 - [x] Busca/filtro: o campo de busca por produtor e o chip Só em transporte, pela API
 - [x] Feedback visual: a faixa verde ou vermelha de toda ação
+
+## Testes
+
+Na pasta backend/:
+
+    poetry run pytest
+
+Na pasta frontend/:
+
+    flutter test
