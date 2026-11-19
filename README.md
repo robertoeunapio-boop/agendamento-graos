@@ -1,70 +1,40 @@
-Você é um designer de produto criando o protótipo navegável de uma aplicação.
+# Agenda de Grãos
 
-CONTEXTO
+Sistema de agendamento de grãos para motoristas de caminhão e produtores: uma API (FastAPI) e um app web (Flutter). Cada usuário cria conta, entra e gerencia só os seus agendamentos.
 
-Sistema de agendamento de graos. O usuário principal é motoristas de caminhao.
+## No ar
 
-ENTIDADE PRINCIPAL
+- O app: https://SEU-APP.onrender.com
+- A API: https://SUA-API.onrender.com/docs
+- O banco: PostgreSQL no Render
 
-agendamento, com os campos:
+A API dorme depois de 15 minutos sem uso: o primeiro acesso leva cerca de 1 minuto.
 
-- titulo(texto, obrigatório)
+## Como rodar na sua máquina
 
-- agendamento(carregamento, descarregamento)
+### API (pasta backend/)
 
-- data(data,obrigatório)
+1. Crie o arquivo `.env`, que fica fora do Git:
 
-- grao(sorgo, milho, soja)
+        DATABASE_URL=sqlite:///./agendamentos.db
+        SECRET_KEY=uma-frase-longa-que-so-voce-conhece
 
-- caminhao(graneleiro, caçamba)
+2. Instale, crie as tabelas e ligue a API:
 
-- horario(intero, obrigatorio)
+        poetry install
+        poetry run alembic upgrade head
+        poetry run uvicorn app.main:app --reload
 
-- observacao(texto, opcional)
+A documentação fica em http://127.0.0.1:8000/docs.
 
-Cada registro pertence a um usuário logado — um usuário tem vários agendamentos; cada agendamento tem vários usuários.
+### App (pasta frontend/)
 
-TELAS (nesta ordem)
+        flutter pub get
+        flutter run -d chrome
 
-1. Login: e-mail e senha, link para cadastro, área para mensagem de erro.
+## Na nuvem
 
-2. Cadastro de usuário: nome, e-mail e senha, com as regras visíveis.
-
-3. Listagem de agendamento: busca por titulo, data, grao e horario, um botão de criar em destaque, e o
-
-   estado de lista vazia, com mensagem convidando a criar o primeiro registro.
-
-4. Formulário de criar/editar agendamento, com as validações visíveis.
-
-5. Detalhe de um registro, com editar e excluir (excluir pede confirmação).
-
-STACK DE DESTINO — leia com atenção
-
-Este protótipo é descartável, mas ele vira a especificação de um aplicativo
-
-Flutter que consome uma API FastAPI. Projete pensando nisso:
-
-- Use Material Design 3 como linguagem visual.
-
-- Layout em coluna única, pensado primeiro para celular.
-
-- Não use nada que não tenha equivalente direto em Flutter: sem grid CSS
-
-  complexo, sem hover como única forma de revelar informação, sem sticky.
-
-- Todo estado de tela precisa existir e estar desenhado: carregando, vazio,
-
-  erro e sucesso.
-
-RESTRIÇÕES
-
-- Não crie backend, banco de dados nem autenticação real: use dados de
-
-  exemplo fixos, inventados.
-
-- Não invente campos que não estão na lista acima.
-
-- Todos os textos da interface em português do Brasil.
+A API sobe pelo `backend/Dockerfile`, no Render, com as variáveis `DATABASE_URL`, `SECRET_KEY` e `ENDERECO_DO_APP` na tela do serviço. O app é um Static Site, construído com `API_URL`. Nenhum segredo está no Git.
 
 ## App (Flutter)
 
