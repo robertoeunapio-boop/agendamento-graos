@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, Query, status
-from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..seguranca import obter_usuario_atual
