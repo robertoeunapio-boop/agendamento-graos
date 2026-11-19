@@ -8,7 +8,9 @@ from sqlalchemy.orm import Session
 
 from .database import get_db
 
-SECRET_KEY = os.getenv("SECRET_KEY", "chavemuitosecretaninguemvaidescobrir")
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("Defina a variável SECRET_KEY (no .env, na sua máquina)")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 

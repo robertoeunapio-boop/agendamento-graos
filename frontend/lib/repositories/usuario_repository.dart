@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/usuario.dart';
 
-const enderecoDaApi = 'http://127.0.0.1:8000';
+const enderecoDaApi = String.fromEnvironment('API_URL', defaultValue: 'http://127.0.0.1:8000');
 
 class RecusaDaApi implements Exception {
   RecusaDaApi(this.status, this.mensagem);
