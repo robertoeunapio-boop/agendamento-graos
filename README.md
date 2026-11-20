@@ -4,8 +4,8 @@ Sistema de agendamento de grãos para motoristas de caminhão e produtores: uma 
 
 ## No ar
 
-- O app: https://SEU-APP.onrender.com
-- A API: https://SUA-API.onrender.com/docs
+- O app: https://agendamento-graos-app.onrender.com
+- A API: https://agendamento-graos.onrender.com/docs
 - O banco: PostgreSQL no Render
 
 A API dorme depois de 15 minutos sem uso: o primeiro acesso leva cerca de 1 minuto.
